@@ -20,7 +20,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
     const trimmed = input.trim();
     if (!trimmed || disabled) return;
 
-    // Send message and clear input immediately as required by assignment contract
     onSendMessage(trimmed);
     setInput('');
 
@@ -39,17 +38,17 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
     e.target.style.height = 'auto';
-    e.target.style.height = `${Math.min(e.target.scrollHeight, 160)}px`;
+    e.target.style.height = `${Math.min(e.target.scrollHeight, 150)}px`;
   };
 
   return (
-    <div className="floating-input-zone">
-      <form className="floating-prompt-box" onSubmit={handleSubmit}>
+    <div className="composer-dock">
+      <form className="composer-form" onSubmit={handleSubmit}>
         <textarea
           ref={textareaRef}
           data-testid="chat-input"
-          className="prompt-textarea"
-          placeholder="Message Rohit AI..."
+          className="composer-textarea"
+          placeholder="Ask Krish AI anything..."
           value={input}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
@@ -57,35 +56,39 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
           rows={1}
         />
 
-        <div className="prompt-box-footer">
-          <div className="prompt-tools-left">
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              Enter ↵ to send • Shift+Enter for newline
-            </span>
+        <div className="composer-footer-row">
+          <div className="composer-hints">
+            <span>Enter ↵ send</span>
+            <span>•</span>
+            <span>Shift+Enter newline</span>
+            <span className="hide-sm">•</span>
+            <span className="hide-sm">{input.length}/4000</span>
           </div>
 
           <button
             type="submit"
             data-testid="send-button"
-            className="send-button-circle"
+            className="composer-send-btn"
             disabled={!input.trim() || disabled}
-            title="Send Message"
+            title="Send to Krish AI"
           >
             {disabled ? (
-              <div className="spinner-sm" style={{ borderTopColor: '#000' }} />
+              <>
+                <div className="spinner-ring" />
+                <span>Sending</span>
+              </>
             ) : (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="19" x2="12" y2="5"/>
-                <polyline points="5 12 12 5 19 12"/>
-              </svg>
+              <>
+                <span>Send</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+                  <line x1="22" y1="2" x2="11" y2="13" />
+                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                </svg>
+              </>
             )}
           </button>
         </div>
       </form>
-
-      <div className="input-disclaimer-text">
-        Rohit AI can make mistakes. Verify important information. Powered by LiteLLM Gateway.
-      </div>
     </div>
   );
 };

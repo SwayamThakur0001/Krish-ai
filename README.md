@@ -1,16 +1,15 @@
-# Lyftr AI - Full-Stack LLM Chatbot with Key Failover and Response Caching
+# Krish AI - Full-Stack LLM Chatbot with Key Failover and Response Caching
 
 A production-grade, resilient AI chatbot built with **React** (frontend), **Python FastAPI** (backend), and **SQLite** for persistent storage. Powered by a **LiteLLM gateway** featuring automatic multi-key failover, deterministic response caching, per-request token tracking, and simulation hooks.
 
 ---
 
-## 1. Live URLs
+## 1. Repository & Local Endpoints
 
-- **Frontend Application**: `https://rohit-ai-chatbot-dy9d.vercel.app`
-- **Backend API**: `https://rohit-ai-chatbot-fap2.onrender.com`
-- **Interactive Swagger Docs**: `https://rohit-ai-chatbot-fap2.onrender.com/docs`
-- **GitHub Repository**: `https://github.com/RohitDabral/rohit-ai-chatbot`
-- **Demo Video (2–3 minutes)**: `https://youtu.be/demo-video-link`
+- **Frontend Application (Local)**: `http://localhost:3000`
+- **Backend API (Local)**: `http://localhost:8000`
+- **Interactive Swagger Docs**: `http://localhost:8000/docs`
+- **GitHub Repository**: `https://github.com/SwayamThakur0001/Krish-ai`
 
 ---
 
@@ -22,8 +21,8 @@ The entire full-stack application (frontend, backend, and persistent SQLite volu
 
 ```bash
 # Clone the repository
-git clone https://github.com/RohitDabral/rohit-ai-chatbot.git
-cd rohit-ai-chatbot
+git clone https://github.com/SwayamThakur0001/Krish-ai.git
+cd Krish-ai
 
 # Copy environment variables template
 cp .env.example .env

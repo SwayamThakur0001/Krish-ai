@@ -11,11 +11,10 @@ function generateSessionId(): string {
   return `s-${rand}`;
 }
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://localhost:8000'
-    : 'https://rohit-ai-chatbot-fap2.onrender.com');
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
+const SESSIONS_STORAGE_KEY = 'krish_ai_sessions';
+const THEME_STORAGE_KEY = 'krish_ai_theme';
 
 export const App: React.FC = () => {
   const [sessionId, setSessionId] = useState<string>('');
@@ -26,30 +25,43 @@ export const App: React.FC = () => {
   const [systemPrompt, setSystemPrompt] = useState<string>('');
   const [isSystemModalOpen, setIsSystemModalOpen] = useState<boolean>(false);
   const [simulateFailure, setSimulateFailure] = useState<string>('');
-  const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
+  const [dockOpen, setDockOpen] = useState<boolean>(true);
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    return savedTheme === 'dark' ? 'dark' : 'light';
+  });
 
-  // Initialize a new session on page load (Mandatory Assignment Requirement)
   useEffect(() => {
     const newId = generateSessionId();
     setSessionId(newId);
-    
-    // Load stored session IDs from localStorage
-    const saved = localStorage.getItem('rohit_ai_sessions');
+
+    const saved = localStorage.getItem(SESSIONS_STORAGE_KEY);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          setSessions([newId, ...parsed.filter((s) => s !== newId)].slice(0, 20));
+          const initialList = [newId, ...parsed.filter((s) => s !== newId)].slice(0, 20);
+          setSessions(initialList);
+          localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(initialList));
         }
       } catch (_) {
         setSessions([newId]);
       }
     } else {
       setSessions([newId]);
+      localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify([newId]));
     }
 
     fetchHealth();
   }, []);
+
+  const handleToggleTheme = () => {
+    setTheme((prev) => {
+      const next = prev === 'light' ? 'dark' : 'light';
+      localStorage.setItem(THEME_STORAGE_KEY, next);
+      return next;
+    });
+  };
 
   const fetchHealth = async () => {
     try {
@@ -69,7 +81,7 @@ export const App: React.FC = () => {
     setMessages([]);
     setSessions((prev) => {
       const updated = [newId, ...prev.filter((s) => s !== newId)].slice(0, 20);
-      localStorage.setItem('rohit_ai_sessions', JSON.stringify(updated));
+      localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(updated));
       return updated;
     });
   };
@@ -102,12 +114,10 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteSession = async (sid: string) => {
-    // 1. Remove from session list in state & localStorage
     const updated = sessions.filter((s) => s !== sid);
     setSessions(updated);
-    localStorage.setItem('rohit_ai_sessions', JSON.stringify(updated));
+    localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(updated));
 
-    // 2. If deleting the currently open session, switch to another or start fresh
     if (sid === sessionId) {
       if (updated.length > 0) {
         handleSelectSession(updated[0]);
@@ -116,11 +126,10 @@ export const App: React.FC = () => {
         setSessionId(newId);
         setMessages([]);
         setSessions([newId]);
-        localStorage.setItem('rohit_ai_sessions', JSON.stringify([newId]));
+        localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify([newId]));
       }
     }
 
-    // 3. Delete from backend SQLite database
     try {
       await fetch(`${API_BASE_URL}/sessions/${sid}`, {
         method: 'DELETE',
@@ -133,7 +142,6 @@ export const App: React.FC = () => {
   const handleSendMessage = async (text: string) => {
     if (!text.trim() || isLoading) return;
 
-    // Append user message immediately
     const userMsg: ChatMessage = {
       id: `user-${Date.now()}`,
       role: 'user',
@@ -174,13 +182,13 @@ export const App: React.FC = () => {
         try {
           const errJson = await res.json();
           if (errJson && errJson.detail) {
-            errorDetail = typeof errJson.detail === 'string'
-              ? errJson.detail
-              : JSON.stringify(errJson.detail);
+            errorDetail =
+              typeof errJson.detail === 'string'
+                ? errJson.detail
+                : JSON.stringify(errJson.detail);
           }
         } catch (_) {}
 
-        // Add error message into chat stream - never show blank screen
         const errorMsg: ChatMessage = {
           id: `err-${Date.now()}`,
           role: 'error',
@@ -214,52 +222,54 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="chatgpt-layout">
-      {/* ChatGPT-style Collapsible Sidebar */}
-      <Sidebar
-        isOpen={sidebarOpen}
-        onToggle={() => setSidebarOpen((prev) => !prev)}
-        currentSessionId={sessionId}
-        sessions={sessions}
-        onSelectSession={handleSelectSession}
-        onDeleteSession={handleDeleteSession}
-        onNewChat={handleNewSession}
+    <div className="krish-studio-shell" data-theme={theme}>
+      <Header
+        dockOpen={dockOpen}
+        onToggleDock={() => setDockOpen((prev) => !prev)}
+        onNewSession={handleNewSession}
+        simulateFailure={simulateFailure}
+        onSelectSimulateFailure={setSimulateFailure}
         health={health}
+        sessionId={sessionId}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
+        hasSystemPrompt={Boolean(systemPrompt.trim())}
         onOpenSystemPrompt={() => setIsSystemModalOpen(true)}
       />
 
-      {/* Main Chat Interface */}
-      <div className="main-chat-area">
-        <Header
-          sidebarOpen={sidebarOpen}
-          onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
-          onNewSession={handleNewSession}
-          onDeleteCurrentSession={() => handleDeleteSession(sessionId)}
-          simulateFailure={simulateFailure}
-          onSelectSimulateFailure={setSimulateFailure}
-        />
+      <div className="studio-workspace">
+        <main className="conversation-stage">
+          {simulateFailure && (
+            <div className="sim-banner">
+              <span>
+                Failover Simulation Active: <code>X-Simulate-Failure: {simulateFailure}</code>
+              </span>
+              <button className="sim-banner-reset" onClick={() => setSimulateFailure('')}>
+                Reset
+              </button>
+            </div>
+          )}
 
-        {simulateFailure && (
-          <div className="sim-alert-banner">
-            <span>
-              🧪 <strong>Test Hook Active:</strong> <code>X-Simulate-Failure: {simulateFailure}</code>
-            </span>
-            <button
-              onClick={() => setSimulateFailure('')}
-              style={{ background: 'transparent', border: 'none', color: '#fbbf24', cursor: 'pointer', textDecoration: 'underline' }}
-            >
-              Turn Off
-            </button>
-          </div>
-        )}
+          <MessageList
+            messages={messages}
+            onSelectSamplePrompt={handleSendMessage}
+            isLoading={isLoading}
+          />
 
-        <MessageList
+          <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} />
+        </main>
+
+        <Sidebar
+          isOpen={dockOpen}
+          currentSessionId={sessionId}
+          sessions={sessions}
           messages={messages}
-          onSelectSamplePrompt={handleSendMessage}
-          isLoading={isLoading}
+          onSelectSession={handleSelectSession}
+          onDeleteSession={handleDeleteSession}
+          health={health}
+          systemPrompt={systemPrompt}
+          onOpenSystemPrompt={() => setIsSystemModalOpen(true)}
         />
-
-        <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} />
       </div>
 
       <SystemPromptModal

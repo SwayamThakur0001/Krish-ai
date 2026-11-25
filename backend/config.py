@@ -14,7 +14,7 @@ class Settings:
     ALLOWED_ORIGINS: str = os.getenv("ALLOWED_ORIGINS", "*")
     ENABLE_FAILURE_SIMULATION: bool = os.getenv("ENABLE_FAILURE_SIMULATION", "true").lower() in ("true", "1", "yes")
     DEFAULT_MODEL: str = os.getenv("LLM_MODEL", "gemini/gemini-3-flash-preview")
-    DEFAULT_SYSTEM_PROMPT: str = os.getenv("DEFAULT_SYSTEM_PROMPT", "You are Rohit AI, a helpful, highly intelligent, professional AI assistant.")
+    DEFAULT_SYSTEM_PROMPT: str = os.getenv("DEFAULT_SYSTEM_PROMPT", "You are Krish AI, a helpful, highly intelligent, professional AI assistant.")
 
     @property
     def api_keys(self) -> List[str]:

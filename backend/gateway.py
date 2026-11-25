@@ -123,10 +123,10 @@ class Gateway:
         if "quantum" in lower:
             return "Quantum computing harnesses the phenomena of quantum mechanics, such as superposition and entanglement, to process data exponentially faster than classical computers for specific complex problems."
         if "hello" in lower or "hi" in lower:
-            return "Hello! I am Rohit AI. How can I assist you today?"
+            return "Hello! I am Krish AI. How can I assist you today?"
         if "who are you" in lower or "your name" in lower:
-            return "I am Rohit AI, an advanced AI assistant powered by LiteLLM with automatic key failover and response caching."
-        return f"Hello! I am Rohit AI. Here is the response to your query regarding '{last_msg}'. Let me know if you would like me to explain further or provide more examples!"
+            return "I am Krish AI, an advanced AI assistant powered by LiteLLM with automatic key failover and response caching."
+        return f"Hello! I am Krish AI. Here is the response to your query regarding '{last_msg}'. Let me know if you would like me to explain further or provide more examples!"
 
     def _execute_llm_call(
         self,

@@ -28,7 +28,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Lyftr AI - Resilient LLM Gateway",
+    title="Krish AI - Resilient LLM Gateway",
     description="LLM Chatbot with Key Failover and Response Caching",
     version="1.0.0",
     lifespan=lifespan,
@@ -66,7 +66,7 @@ async def root():
   """Root endpoint returning basic service info."""
   return {
       "status": "ok",
-      "name": "Rohit AI - Resilient LLM Gateway",
+      "name": "Krish AI - Resilient LLM Gateway",
       "version": "1.0.0",
       "endpoints": ["/health", "/chat", "/sessions/{session_id}/messages"],
   }
